@@ -22,3 +22,18 @@ Orchestrator Agent chịu trách nhiệm điều phối các agent khác để h
 - Orchestrator phải theo dõi tiến độ của tất cả các agent và đảm bảo rằng nhiệm vụ được hoàn thành đúng hạn.
 - Orchestrator phải điều chỉnh kế hoạch nếu có vấn đề phát sinh và đảm bảo rằng nhiệm vụ vẫn được hoàn thành đúng hạn.
 - Orchestrator phải tổng hợp kết quả từ tất cả các agent và đẩy chúng cho aggregator-agent để tổng hợp và trả về cho người dùng.
+
+## Danh sách agent có thể giao tiếp:
+ - **aggregator-agent** — [aggregator.agent.md](aggregator.agent.md)
+ - **orchestrator** — [orchestrator.agent.md](orchestrator.agent.md)
+ - **performance-agent** — [workers/performance-agent.agent.md](workers/performance-agent.agent.md)
+ - **docs-agent** — [workers/docs-agent.agent.md](workers/docs-agent.agent.md)
+ - **dependency-agent** — [workers/dependency-agent.agent.md](workers/dependency-agent.agent.md)
+ - **req-extractor** — [workers/req-extractor.agent.md](workers/req-extractor.agent.md)
+ - **quality-agent** — [workers/quality-agent.agent.md](workers/quality-agent.agent.md)
+ - **refactor-agent** — [workers/refactor-agent.agent.md](workers/refactor-agent.agent.md)
+ - **qa-agent** — [workers/qa-agent.agent.md](workers/qa-agent.agent.md)
+ - **research-agent** — [workers/research-agent.agent.md](workers/research-agent.agent.md)
+ - **security-agent** — [workers/security-agent.agent.md](workers/security-agent.agent.md)
+ - **test-agent** — [workers/test-agent.agent.md](workers/test-agent.agent.md)
+
