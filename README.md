@@ -13,6 +13,11 @@ doct-agents là một tập hợp các agent được thiết kế để thực 
    git submodule add https://github.com/OneTwoTen/doct-agents.git third_party/doct-agents
    git submodule update --init --recursive
    ```
+   - Update submodule:
+
+   ```bash
+   git submodule update --remote --merge
+   ```
 
 2. Git subtree:
 
