@@ -7,7 +7,6 @@
 Repo này **không bắt buộc** phải dùng `.github/agents/`, vì có thể chủ động cấu hình đường dẫn custom agent trong VS Code. Hiện tại bộ agent được đặt trong:
 
 - `agents/`
-- `agents/workers/`
 
 Điều quan trọng là nội dung file `.agent.md` phải đúng chuẩn frontmatter và dùng đúng tên tool của VS Code.
 
