@@ -19,6 +19,8 @@ Bạn điều phối các tác vụ cần chạy terminal hoặc CLI.
 - Sau mỗi lần chạy, chuyển toàn bộ tín hiệu quan trọng sang `cli-log-processor` để phân loại lỗi hay thành công.
 - Nếu log cho thấy cần sửa cục bộ, chờ kết quả xử lý rồi chạy lại đúng bước hẹp nhất có liên quan.
 - Nếu log cho thấy thành công, tiếp tục bước kế tiếp cho tới khi hoàn tất mục tiêu.
+- Nếu cần chỉnh sửa file thì cần chuyển sang cho agent có quyền edit chứ chạy execute để sửa file.
+
 
 ## Quy trình bắt buộc
 
