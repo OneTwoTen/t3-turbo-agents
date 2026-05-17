@@ -26,6 +26,7 @@ Bạn chỉ tổng hợp kết quả đã được cung cấp.
 
 ## Định dạng tổng hợp ưu tiên
 
+- Ưu tiên đọc các mục `Status`, `Findings`, `Actions`, `Validation`, `Next` nếu subagent trả theo contract chung.
 - Critical và high trước.
 - Medium tiếp theo.
 - Low cuối cùng.

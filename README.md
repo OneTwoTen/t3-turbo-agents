@@ -71,12 +71,36 @@ Nếu sau này thêm skills ở vị trí tùy biến, có thể cấu hình tư
 ## Quy ước thao tác file và tối ưu token
 
 - Đọc file: dùng `search` trước để khoanh vùng file, symbol hoặc đoạn liên quan; chỉ dùng `read` cho phần cần thiết thay vì nạp nhiều file dài.
-- Tạo hoặc sửa file nhỏ: dùng `edit` để thay đổi trực tiếp trong workspace, vì thao tác này giữ diff rõ ràng và không cần sinh script phụ.
-- Dùng `execute` cho script hoặc CLI khi cần chạy test, build, format, benchmark, audit, codemod hoặc biến đổi cơ học trên nhiều file.
+- Tạo file mới hoàn toàn: ưu tiên generate nội dung rồi ghi file bằng `edit`; dùng script/template khi boilerplate lớn hoặc có nhiều file lặp mẫu.
+- Sửa file có sẵn: dùng diff edit hoặc patch edit qua `edit` để giữ thay đổi nhỏ, rõ và dễ review.
+- Refactor hàng loạt: dùng script, codemod hoặc AST transform qua `execute` nếu thay đổi cơ học và có thể kiểm chứng.
+- Sửa logic nhỏ: dùng direct edit, tránh sinh script phụ.
+- Generate boilerplate lớn: dùng template hoặc script, sau đó đọc lại các phần chính để kiểm tra.
+- Dùng `execute` cho CLI khi cần chạy test, build, format, benchmark, audit, codemod hoặc biến đổi cơ học trên nhiều file.
 - Không dùng `execute` để sửa file cấu hình vài dòng nếu agent đã có `edit`; chỉ dùng script khi thay đổi lặp lại, có thể kiểm chứng và tiết kiệm hơn đọc/sửa thủ công.
 - Với log dài, ưu tiên ghi ra file rồi dùng `search` hoặc `read` đúng đoạn lỗi chính; không chuyển toàn bộ stdout/stderr qua nhiều agent nếu không cần.
 - Handoff giữa agents chỉ nên truyền mục tiêu, file liên quan, tín hiệu chính và quyết định cần đưa ra; tránh gửi nguyên context đã đọc nếu subagent không cần.
 - Không tách thêm agent nếu workflow có thể xử lý bằng mode hoặc ràng buộc trong agent hiện có.
+
+## Agent I/O contract
+
+Khi orchestrator giao việc hoặc agent trả kết quả, ưu tiên contract ngắn này nếu tác vụ đủ phức tạp; với tác vụ nhỏ có thể rút gọn.
+
+Input handoff:
+
+- `Objective`: mục tiêu cần xử lý.
+- `Scope`: file, module hoặc phạm vi liên quan.
+- `Constraints`: quyền được dùng, điều không được làm, giới hạn thời gian hoặc token.
+- `Context`: tín hiệu quan trọng đã biết, không gửi lại toàn bộ nội dung đã đọc nếu không cần.
+- `Expected output`: dạng kết quả mong muốn.
+
+Output handoff:
+
+- `Status`: `done`, `needs-info`, `needs-fix` hoặc `blocked`.
+- `Findings`: tối đa 5 mục chính nếu là review, research hoặc audit.
+- `Actions`: việc đã làm hoặc đề xuất làm tiếp.
+- `Validation`: lệnh đã chạy, kết quả chính hoặc lý do chưa chạy.
+- `Next`: bước tiếp theo ngắn gọn.
 
 ## Cách cập nhật repo này
 
