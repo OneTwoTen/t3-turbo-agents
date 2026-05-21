@@ -1,40 +1,77 @@
 # doct-agents
 
-`doct-agents` là một bộ custom agents cho VS Code Copilot, được tổ chức theo nhu cầu thực tế của hệ thống DOCT. Mỗi agent có một vai trò riêng và có thể phối hợp với nhau để xử lý các tác vụ như phân tích yêu cầu, review chất lượng, kiểm tra bảo mật, viết test, cập nhật tài liệu và tổng hợp kết quả.
+`doct-agents` là bộ VS Code Copilot custom agents dùng cho các workflow kỹ thuật của DOCT. Mỗi agent có một vai trò hẹp, tool được cấp theo nguyên tắc least privilege, và có thể được orchestrator điều phối khi tác vụ cần nhiều bước.
 
-## Cấu trúc repo hiện tại
+## Cấu trúc repo
 
-Repo này **không bắt buộc** phải dùng `.github/agents/`, vì có thể chủ động cấu hình đường dẫn custom agent trong VS Code. Hiện tại bộ agent được đặt trong:
+```text
+.
+├── README.md
+└── agents/
+    ├── agent-authoring.agent.md
+    ├── aggregator.agent.md
+    ├── cli-executor.agent.md
+    ├── dependency-agent.agent.md
+    ├── docs-agent.agent.md
+    ├── orchestrator.agent.md
+    ├── performance-agent.agent.md
+    ├── refactor-agent.agent.md
+    ├── req-extractor.agent.md
+    ├── research-agent.agent.md
+    ├── review-agent.agent.md
+    ├── security-agent.agent.md
+    └── test-agent.agent.md
+```
 
-- `agents/`
+Repo này không bắt buộc dùng `.github/agents/`. Nếu đặt repo ở vị trí tùy biến, hãy cấu hình VS Code để đọc thư mục `agents/`.
 
-Điều quan trọng là nội dung file `.agent.md` phải đúng chuẩn frontmatter và dùng đúng tên tool của VS Code.
+## Cấu hình VS Code
 
-## Những gì đã được chuẩn hóa
+Ví dụ khi dùng trực tiếp trong repo hiện tại hoặc khi nhúng repo này vào project khác:
 
-- Dùng đúng các trường frontmatter của custom agent như `name`, `description`, `argument-hint`, `tools`, `agents`, `user-invocable`.
-- Dùng đúng tên built-in tool và tool set của VS Code như `read`, `search`, `edit`, `execute`, `agent`, `web`, `todos`, `vscode/askQuestions`.
-- Viết lại mô tả agent bằng tiếng Việt có dấu để dễ bảo trì.
-- Giữ `description` đủ rõ để agent dễ được discover đúng lúc.
+```json
+{
+  "chat.agentFilesLocations": {
+    "agents": true,
+    "third_party/doct-agents/agents": true
+  }
+}
+```
 
-## Danh sách agent hiện có
+Nếu sau này thêm skills ở vị trí tùy biến, cấu hình tương tự với `chat.agentSkillsLocations`.
 
-- `orchestrator`: điều phối tác vụ phức tạp và giao việc cho các worker agents.
-- `aggregator-agent`: tổng hợp kết quả từ nhiều subagent.
-- `dependency-agent`: kiểm tra dependency, audit, package lỗi thời.
-- `docs-agent`: cập nhật README và tài liệu nội bộ.
-- `performance-agent`: phân tích benchmark và điểm nghẽn.
-- `review-agent`: review read-only cho bug, test gap, maintainability, lint, type và error handling.
-- `refactor-agent`: refactor nhỏ, không phá vỡ hành vi.
-- `req-extractor`: trích xuất requirements từ feature brief.
-- `research-agent`: tìm và tổng hợp thông tin từ nguồn bên ngoài.
-- `security-agent`: security review theo chế độ read-only.
-- `test-agent`: viết và cập nhật test.
-- `agent-authoring`: agent chuyên tạo và cập nhật custom agents hoặc agent skills.
+## Agent hiện có
+
+| Agent | Khi nào dùng | Tools | User invocable | Model |
+| --- | --- | --- | --- | --- |
+| `orchestrator` | Chia nhỏ tác vụ kỹ thuật phức tạp, giao việc cho subagent và hợp nhất kết quả cuối. | `agent`, `read`, `search`, `todo`, `vscode/askQuestions` | Không khai báo | GPT-5.4 |
+| `cli-executor` | Chạy terminal/CLI, thu stdout/stderr/exit code/log và phân loại kết quả thành lỗi, tiếp tục hoặc hoàn tất. | `execute`, `read`, `vscode/askQuestions` | Có | GPT-5.4 |
+| `aggregator-agent` | Tổng hợp findings từ nhiều subagent, khử trùng lặp và sắp xếp theo mức độ nghiêm trọng. | Không có | Không | GPT-5.4 mini |
+| `agent-authoring` | Tạo hoặc cập nhật VS Code custom agents hay agent skills đúng cấu trúc workspace. | `read`, `search`, `edit`, `web`, `vscode/askQuestions` | Không | GPT-5 mini |
+| `dependency-agent` | Kiểm tra package manager, lockfile, gói lỗi thời, vulnerability và hướng nâng cấp an toàn. | `read`, `search`, `execute` | Không | Raptor mini |
+| `docs-agent` | Tạo/cập nhật README, hướng dẫn cài đặt, onboarding notes hoặc tài liệu nội bộ ngắn. | `read`, `search`, `edit` | Không | GPT-5 mini |
+| `performance-agent` | Phân tích benchmark, hiệu năng thực tế, điểm nghẽn hoặc so sánh với baseline. | `read`, `search`, `execute` | Không | Raptor mini |
+| `refactor-agent` | Refactor nhỏ, giữ nguyên hành vi, cải thiện readability hoặc giảm trùng lặp trong phạm vi hẹp. | `read`, `search`, `edit` | Không | Raptor mini |
+| `req-extractor` | Chuyển brief/ticket/yêu cầu mơ hồ thành requirements, constraints, acceptance criteria và câu hỏi làm rõ. | `read`, `search`, `vscode/askQuestions` | Không | GPT-5 mini |
+| `research-agent` | Thu thập thông tin bên ngoài repo từ nguồn đáng tin để hỗ trợ quyết định kỹ thuật/kiến trúc. | `web`, `read`, `search` | Không | GPT-5 mini |
+| `review-agent` | Review code read-only theo mode `qa` hoặc `quality`, tập trung bug, test gap, maintainability, lint/type/error handling. | `read`, `search`, `execute` | Không | Raptor mini |
+| `security-agent` | Security review read-only để tìm secrets, cấu hình không an toàn hoặc flow/code path rủi ro. | `read`, `search` | Không | GPT-5 mini |
+| `test-agent` | Thêm/cập nhật test tự động, tìm coverage gaps và chạy tập test hẹp nhất liên quan. | `read`, `search`, `edit`, `execute` | Không | Raptor mini |
+
+## Nhóm vai trò
+
+- Điều phối: `orchestrator`
+- Chạy lệnh: `cli-executor`
+- Tổng hợp: `aggregator-agent`
+- Tạo/cập nhật customization: `agent-authoring`
+- Phân tích yêu cầu: `req-extractor`
+- Tài liệu và research: `docs-agent`, `research-agent`
+- Chất lượng code: `review-agent`, `refactor-agent`, `test-agent`
+- Rủi ro vận hành: `security-agent`, `dependency-agent`, `performance-agent`
 
 ## Cách sử dụng
 
-### 1. Git submodule
+### Dùng như Git submodule
 
 ```bash
 git submodule add https://github.com/OneTwoTen/doct-agents.git third_party/doct-agents
@@ -47,51 +84,58 @@ Cập nhật submodule:
 git submodule update --remote --merge
 ```
 
-### 2. Git subtree
+### Dùng như Git subtree
 
 ```bash
 git subtree add --prefix=third_party/doct-agents https://github.com/OneTwoTen/doct-agents.git main --squash
 ```
 
-## Cấu hình trong VS Code
+## Frontmatter chuẩn
 
-Vì repo này đặt agent ở thư mục tùy biến thay vì `.github/agents/`, cần trỏ thêm location trong VS Code. Ví dụ:
+Mỗi file `.agent.md` nên có frontmatter theo các trường đang dùng trong repo:
 
-```json
-{
-   "chat.agentFilesLocations": {
-      "agents": true,
-      "third_party/doct-agents/agents": true
-   }
-}
+```yaml
+---
+name: agent-name
+description: "Mô tả rõ khi nào nên dùng agent."
+argument-hint: "Tùy chọn, chỉ thêm khi agent cần gợi ý input."
+tools: ["read", "search"]
+agents: []
+user-invocable: false
+model: GPT-5 mini (copilot)
+---
 ```
 
-Nếu sau này thêm skills ở vị trí tùy biến, có thể cấu hình tương tự với `chat.agentSkillsLocations`.
+Ghi chú:
 
-## Quy ước thao tác file và tối ưu token
+- `description` phải đủ cụ thể để VS Code discover đúng agent.
+- `tools` chỉ cấp quyền tối thiểu cần thiết.
+- Nếu agent gọi subagent, phải có `agent` trong `tools` và liệt kê subagent trong `agents`.
+- Agent read-only không được có `edit`; agent không cần chạy lệnh không nên có `execute`.
+- `argument-hint` chỉ dùng khi input của agent cần được định hướng rõ.
+- `user-invocable` hiện chỉ bật cho `cli-executor`; phần lớn worker còn lại dùng qua orchestrator.
 
-- Đọc file: dùng `search` trước để khoanh vùng file, symbol hoặc đoạn liên quan; chỉ dùng `read` cho phần cần thiết thay vì nạp nhiều file dài.
-- Tạo file mới hoàn toàn: ưu tiên generate nội dung rồi ghi file bằng `edit`; dùng script/template khi boilerplate lớn hoặc có nhiều file lặp mẫu.
-- Sửa file có sẵn: dùng diff edit hoặc patch edit qua `edit` để giữ thay đổi nhỏ, rõ và dễ review.
-- Refactor hàng loạt: dùng script, codemod hoặc AST transform qua `execute` nếu thay đổi cơ học và có thể kiểm chứng.
-- Sửa logic nhỏ: dùng direct edit, tránh sinh script phụ.
-- Generate boilerplate lớn: dùng template hoặc script, sau đó đọc lại các phần chính để kiểm tra.
-- Dùng `execute` cho CLI khi cần chạy test, build, format, benchmark, audit, codemod hoặc biến đổi cơ học trên nhiều file.
-- Không dùng `execute` để sửa file cấu hình vài dòng nếu agent đã có `edit`; chỉ dùng script khi thay đổi lặp lại, có thể kiểm chứng và tiết kiệm hơn đọc/sửa thủ công.
-- Với log dài, ưu tiên ghi ra file rồi dùng `search` hoặc `read` đúng đoạn lỗi chính; không chuyển toàn bộ stdout/stderr qua nhiều agent nếu không cần.
-- Handoff giữa agents chỉ nên truyền mục tiêu, file liên quan, tín hiệu chính và quyết định cần đưa ra; tránh gửi nguyên context đã đọc nếu subagent không cần.
-- Không tách thêm agent nếu workflow có thể xử lý bằng mode hoặc ràng buộc trong agent hiện có.
+## Quy ước tool và quyền
+
+- `read`: đọc file hoặc đoạn nội dung đã xác định.
+- `search`: tìm file, symbol hoặc đoạn liên quan trước khi đọc rộng.
+- `edit`: sửa file; chỉ cấp cho agent thực sự được phép thay đổi nội dung.
+- `execute`: chạy CLI, test, audit, benchmark hoặc command kiểm chứng.
+- `agent`: giao việc cho subagent.
+- `web`: tra cứu nguồn ngoài repo khi thông tin có thể thay đổi hoặc cần nguồn chính thức.
+- `todo`: theo dõi tác vụ nhiều bước trong orchestrator.
+- `vscode/askQuestions`: hỏi lại khi thiếu dữ liệu để tiếp tục an toàn.
 
 ## Agent I/O contract
 
-Khi orchestrator giao việc hoặc agent trả kết quả, ưu tiên contract ngắn này nếu tác vụ đủ phức tạp; với tác vụ nhỏ có thể rút gọn.
+Khi orchestrator giao việc hoặc agent trả kết quả, ưu tiên contract ngắn này cho tác vụ đủ phức tạp. Với tác vụ nhỏ có thể rút gọn.
 
 Input handoff:
 
 - `Objective`: mục tiêu cần xử lý.
 - `Scope`: file, module hoặc phạm vi liên quan.
 - `Constraints`: quyền được dùng, điều không được làm, giới hạn thời gian hoặc token.
-- `Context`: tín hiệu quan trọng đã biết, không gửi lại toàn bộ nội dung đã đọc nếu không cần.
+- `Context`: tín hiệu quan trọng đã biết; không gửi lại toàn bộ nội dung đã đọc nếu không cần.
 - `Expected output`: dạng kết quả mong muốn.
 
 Output handoff:
@@ -102,9 +146,20 @@ Output handoff:
 - `Validation`: lệnh đã chạy, kết quả chính hoặc lý do chưa chạy.
 - `Next`: bước tiếp theo ngắn gọn.
 
-## Cách cập nhật repo này
+## Quy ước thao tác
 
-1. Sửa hoặc thêm file `.agent.md` trong `agents/` hoặc `agents/workers/`.
-2. Giữ `description` rõ ràng để VS Code dễ discover đúng agent.
-3. Chỉ cấp các tool tối thiểu cần thiết cho từng agent.
-4. Kiểm tra kỹ frontmatter, tên tool và cấu trúc file trước khi commit.
+- Đọc file: dùng `search` trước để khoanh vùng file/symbol/đoạn liên quan, rồi mới `read` phần cần thiết.
+- Sửa file có sẵn: dùng `edit` với diff/patch nhỏ, rõ và dễ review.
+- Tạo file mới: sinh nội dung đầy đủ rồi ghi bằng `edit`; dùng script/template khi boilerplate lớn.
+- Refactor hàng loạt: chỉ dùng script/codemod qua `execute` khi thay đổi cơ học, có thể kiểm chứng và tiết kiệm hơn chỉnh tay.
+- Log dài: ưu tiên ghi ra file log rồi đọc đúng đoạn lỗi chính thay vì truyền toàn bộ stdout/stderr qua nhiều agent.
+- Handoff giữa agents: chỉ truyền mục tiêu, phạm vi, constraint, tín hiệu chính và output mong muốn.
+- Không tách thêm agent nếu workflow có thể xử lý bằng mode, constraint hoặc agent hiện có.
+
+## Cập nhật repo này
+
+1. Sửa hoặc thêm file `.agent.md` trong `agents/`.
+2. Giữ `name` ổn định, `description` rõ ràng và `tools` tối thiểu.
+3. Nếu thêm worker mới cho orchestrator, cập nhật `agents` trong `agents/orchestrator.agent.md`.
+4. Cập nhật README khi thêm/xóa/đổi vai trò, tools, model hoặc `user-invocable`.
+5. Kiểm tra frontmatter, tên tool và cấu trúc file trước khi commit.
